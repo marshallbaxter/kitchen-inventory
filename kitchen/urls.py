@@ -19,13 +19,18 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect # Import redirect
 
-from hello_world.core import views as core_views
+from kitchen.core import views as core_views
 
 urlpatterns = [
-    path("", core_views.index),
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.urls),
+    # Include inventory URLs under the 'inventory/' path
+    path('inventory/', include('inventory.urls', namespace='inventory')),
+    # Add django_browser_reload URLs
     path("__reload__/", include("django_browser_reload.urls")),
+    # Redirect the root URL to the inventory list
+    path('', lambda request: redirect('inventory:inventory_list', permanent=True)),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

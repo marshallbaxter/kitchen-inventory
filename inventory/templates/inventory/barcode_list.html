@@ -1,0 +1,42 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    {% if barcodes %}
+        <table class="barcode-table">
+            <thead>
+                <tr>
+                    <th>Barcode</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for barcode in barcodes %}
+                <tr>
+                    <td>{{ barcode.code }}</td>
+                    <td>{{ barcode.item.name }}</td>
+                    <td>{{ barcode.quantity|floatformat:"-2" }} {{ barcode.item.unit|default:"" }}</td>
+                    <td>{{ barcode.description }}</td>
+                    <td>
+                        <a href="{% url 'inventory:edit_barcode' barcode.id %}" class="button-link">Edit</a>
+                        <form action="{% url 'inventory:delete_barcode' barcode.id %}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this barcode?');">
+                            {% csrf_token %}
+                            <button type="submit" style="color: red;">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No barcodes have been added yet.</p>
+    {% endif %}
+
+    <p><a href="{% url 'inventory:add_barcode' %}">Add a new barcode</a></p>
+    <p><a href="{% url 'inventory:scan_barcode' %}">Scan barcodes</a></p>
+{% endblock %}

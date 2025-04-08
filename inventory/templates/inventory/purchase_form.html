@@ -1,0 +1,20 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        {% if item %}
+        <h3>{{ item.name }}</h3>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Record Purchase</button>
+        </form>
+        <br>
+        <a href="javascript:history.back()">Cancel</a>
+    </div>
+{% endblock %}
