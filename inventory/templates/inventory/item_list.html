@@ -1,0 +1,82 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    {% if items %}
+        <ul>
+            {% for item in items %}
+            <li style="{% if item.is_on_shopping_list %}border-left: 5px solid orange; padding-left: 15px;{% endif %}">
+                <span>
+                    {# Link to update stock details #}
+                    <a href="{% url 'inventory:update_stock' item.id %}" title="Edit stock/open status">{{ item.name }}</a>
+
+                    {# Display Stock Info #}
+                    (Sealed: {{ item.quantity|floatformat:"-2" }} {{ item.unit|default:"" }})
+                    {% if item.is_open %}
+                        <strong style="color: green;" title="A unit is currently open"> (+ Open)</strong>
+                    {% endif %}
+
+                    {# Display Shopping List Info (if relevant on this page) #}
+                    {% if item.is_on_shopping_list %}
+                         {# Show needed qty on both lists for context #}
+                        <em style="color: orange; font-size: 0.9em;" title="On shopping list"> (Need: {{ item.quantity_needed|floatformat:"-2" }})</em>
+                    {% endif %}
+
+                    {% if item.location %}
+                    <div class="text-sm text-gray-600 mt-1">
+                        <span class="font-medium">Location:</span> {{ item.location }}
+                    </div>
+                    {% endif %}
+                </span>
+
+                <span class="actions">
+                    {# --- Action Forms/Links --- #}
+
+                    {# Add/Edit Needed Quantity - Link to a form #}
+                    <a href="{% url 'inventory:add_to_shopping_list' item.id %}" class="button-link" title="Add to shopping list or edit needed quantity">
+                        {% if item.is_on_shopping_list %}Edit Needed{% else %}Need to Buy{% endif %}
+                    </a>
+
+                    {# Remove from Shopping List (Form POST) #}
+                    {% if item.is_on_shopping_list %}
+                    <form action="{% url 'inventory:remove_from_shopping_list' item.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" title="Remove from shopping list">Remove</button>
+                    </form>
+                    {% endif %}
+
+                    {# Mark as Purchased (Link to form) #}
+                    {% if item.is_on_shopping_list and list_type == 'shopping' %} {# Show mainly on shopping list #}
+                     <a href="{% url 'inventory:mark_purchased' item.id %}" class="button-link" title="Record purchase">Purchased</a>
+                    {% endif %}
+
+                    {# Toggle Open Status (Form POST) - Show only if item makes sense to open (has units or is already open) #}
+                    {% if item.quantity > 0 or item.is_open %}
+                    <form action="{% url 'inventory:toggle_open' item.id %}" method="post" style="display: inline;">
+                       {% csrf_token %}
+                       <button type="submit" title="Toggle open/closed status">{% if item.is_open %}Mark Closed{% else %}Mark Open{% endif %}</button>
+                    </form>
+                    {% endif %}
+
+                    {# Delete Item (Form POST) #}
+                    <form action="{% url 'inventory:delete_item' item.id %}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete {{ item.name }}?');">
+                       {% csrf_token %}
+                       <button type="submit" style="color: red;" title="Delete item permanently">Delete</button>
+                    </form>
+
+                    {# Edit Item (Link) #}
+                    <a href="{% url 'inventory:edit_item' item.id %}" class="text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No items match the criteria for this list.</p>
+    {% endif %}
+
+    <p><a href="{% url 'inventory:add_item' %}">Add a new item</a></p>
+{% endblock %}

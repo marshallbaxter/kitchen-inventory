@@ -1,0 +1,35 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <form method="post" id="barcode-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save Barcode</button>
+        </form>
+        <br>
+        <a href="{% url 'inventory:barcode_list' %}">Cancel</a>
+    </div>
+
+    <script>
+        // Prevent form submission on Enter key for the barcode field
+        document.addEventListener('DOMContentLoaded', function() {
+            const barcodeInput = document.getElementById('id_code');
+            if (barcodeInput) {
+                barcodeInput.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        // Move focus to the next field instead
+                        const nextField = document.getElementById('id_item');
+                        if (nextField) {
+                            nextField.focus();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}
